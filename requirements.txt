@@ -1,0 +1,5 @@
+# Core dependencies
+crawl4ai
+
+# Optional dependencies (add any other packages you might need)
+aiohttp

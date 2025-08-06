@@ -1,0 +1,116 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+.venv/
+env/
+ENV/
+
+# Temporary directories
+results/
+
+# Temporary files
+error.txt
+
+# Project-specific
+.project
+.idea/
+.vscode/
+continue/
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+*.class
+
+# Distribution / packaging
+.Python
+build/
+dist/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a Python script from a template
+#  before PyInstaller builds the executable, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+#  JetBrains specific, usually used for virtualenvs and installations
+#  See https://www.jetbrains.com/help/pycharm/2016.1/configuring-project-settings-vcs.html
+.idea/
+*.iws
+.karma/
+
+# Environments
+.env
+.env.*
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# NumPy debug database files
+*.npz
+
+# IPython
+.profile
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#  According to pypi.org, the Pipfile is a new metadata format that allows you
+#  to specify package dependencies in a more explicit and flexible way.
+#  The Pipfile can be used instead of the requirements.txt file for specifying
+#  package dependencies.
+Pipfile.*
