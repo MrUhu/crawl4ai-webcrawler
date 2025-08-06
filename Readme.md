@@ -13,13 +13,15 @@ This is a web crawler tool built using Devstral's Crawl4AI library. It allows yo
 ## Installation
 
 1. Clone this repository:
-> git clone https://github.com/yourusername/web-crawler.git cd web-crawler
+> git clone https://github.com/MrUhu/crawl4ai-webcrawler.git
+> 
+> cd web-crawler
 
 
 2. Create a virtual environment and install dependencies:
 > python3 -m venv .venv
 >
-> source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+> source .venv/bin/activate
 >
 > pip install -r requirements.txt
 >
