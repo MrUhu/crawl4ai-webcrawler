@@ -1,6 +1,6 @@
 # Web Crawler
 
-This is a web crawler tool built using Devstral's Crawl4AI library. It allows you to crawl websites, extract URLs, and optionally download media content.
+This is a web crawler tool built using Devstral and the Crawl4AI library. It allows you to crawl websites, extract URLs, and optionally download media content.
 
 ## Features
 
@@ -38,7 +38,4 @@ python src/crawler.py "https://example.com" --deepcrawl --accept-downloads
 * --accept-downloads: Download found images and files during the crawl (optional|boolean)
 
 ## Results
-The crawler saves its results in the results directory, with one markdown file per crawled website containing the cleaned HTML content. If deep crawling is enabled, it also provides information about downloaded media.
-
-## Configuration
-You can configure various aspects of the crawler by modifying the parameters in the start_crawler function or by creating a configuration file.
+The crawler saves its results in the results directory, with one markdown file per crawled website containing the cleaned HTML content. If accept downloads is enabled, it also provides information about downloaded media.
