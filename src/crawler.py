@@ -65,7 +65,8 @@ async def start_crawler(url: str, deepcrawl: bool = False, accept_downloads: boo
         verbose=True,            # Detailed logging
         cache_mode=CacheMode.ENABLED,  # Use normal read/write cache
         exclude_external_links=True,  # Whether to exclude external links during the crawl
-        exclude_social_media_links=True
+        exclude_social_media_links=True,
+        check_robots_txt=True
     )
 
     async with AsyncWebCrawler(
