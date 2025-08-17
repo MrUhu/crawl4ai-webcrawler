@@ -13,12 +13,14 @@ results/
 
 # Temporary files
 error.txt
+crawler.sh
 
 # Project-specific
 .project
 .idea/
 .vscode/
 continue/
+excluded_domains.txt
 
 # Byte-compiled / optimized / DLL files
 *.so

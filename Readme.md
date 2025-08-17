@@ -30,7 +30,11 @@ This is a web crawler tool built using Devstral and the Crawl4AI library. It all
 ## Usage
 To run the crawler, simply execute the script with desired parameters:
 
-python src/crawler.py "https://example.com" --deepcrawl --accept-downloads
+python src/crawler.py "https://example.com" --deepcrawl --accept_downloads
+
+## Excluded Domains
+excluded_domains.txt will be created in the main directory of this project.
+This is used as a filter list, so that the specified domains will not be crawled when found.
 
 ## Parameters
 * url: The URL to start crawling from (required)
