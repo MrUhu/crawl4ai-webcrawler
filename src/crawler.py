@@ -5,15 +5,14 @@ import re
 from crawl4ai import *
 import requests
 from urllib.parse import urlparse
-from numpy import random
-from time import sleep
+from base64 import b64decode
 
 # Maximum length for filenames on most filesystems (e.g., NTFS, ext4)
 MAX_FILENAME_LENGTH = 255
 
 
 async def start_crawler(
-    url: str, depth: int, deepcrawl: bool = False, accept_downloads: bool = False
+    url: str, depth: int, deepcrawl: bool = False, accept_downloads: bool = False, save_pdf: bool = False, save_screenshot: bool = False
 ) -> dict:
     """
     Starts the web crawler on the given URL.
@@ -23,16 +22,30 @@ async def start_crawler(
         depth (int): Depth of the crawl if deepcrawl is activated (default: 3)
         deepcrawl (bool): Whether to perform a deep crawl or not. This will follow all links and scrape the whole website including linked sites if True.
         accept_downloads (bool): Whether to download found images and files during the crawl.
+        save_pdf (bool): Whether to save the crawled content as PDF files.
+        save_screenshot (bool): Whether to capture screenshots of the crawled pages.
+
     Returns:
         dict: A dictionary containing all URLs that were crawled and media info if deepcrawl is enabled.
     """
     # Results path
     results_path = os.path.join("./results", sanitize_directory_name(url))
     downloads_path = os.path.join(results_path, "downloads")
+    html_path = os.path.join(results_path, "html")
+    md_path = os.path.join(results_path, "md")
+
+    if save_pdf:
+        print("Save PDF is activated!")
 
     # Set up the results directory if it doesn't exist
     if not os.path.exists(results_path):
         os.makedirs(results_path)
+    
+    if not os.path.exists(html_path):
+        os.makedirs(html_path)
+
+    if not os.path.exists(md_path):
+        os.makedirs(md_path)
 
     if not os.path.exists(downloads_path):
         os.makedirs(downloads_path)
@@ -70,11 +83,17 @@ async def start_crawler(
             filter_chain=filter_chain,
         ),
         scraping_strategy=None if not deepcrawl else LXMLWebScrapingStrategy(),
-        verbose=True,  # Detailed logging
-        cache_mode=CacheMode.ENABLED,  # Use normal read/write cache
+        #verbose=True,  # Detailed logging
         exclude_external_links=True,  # Whether to exclude external links during the crawl
         exclude_social_media_links=True,
-        check_robots_txt=True
+        #check_robots_txt=True,
+        magic=True, # Might be too invasive at points
+        simulate_user=True,
+        remove_overlay_elements=True,
+        wait_for_images=True,
+        cache_mode=CacheMode.BYPASS if save_pdf or save_screenshot else CacheMode.ENABLED,
+        pdf=save_pdf,
+        screenshot=save_screenshot
     )
 
     async with AsyncWebCrawler(
@@ -87,13 +106,6 @@ async def start_crawler(
         results = await crawler.arun(
             url=url,
             config=run_config,
-            bypass_cache=True,
-            magic=True, # Might be too invasive at points
-            simulate_user=True,
-            cache_mode=CacheMode.BYPASS,
-            remove_overlay_elements=True,
-            wait_for_images=True,
-            #screenshot=True,
         )
 
         print(f"Crawled {len(results)} pages in total")
@@ -107,15 +119,24 @@ async def start_crawler(
 
                 # Create a filename based on the URL (sanitize the URL for filename)
                 filename = sanitize_filename(result.url)
-                file_path = os.path.join(results_path, filename)
 
                 try:
                     if result.markdown:
+                        file_path = os.path.join(results_path, "md", filename + ".md")
                         with open(file_path, "w", encoding="utf-8") as f:
                             f.write(result.markdown)  # Write Markdown content to the file
                     if result.cleaned_html:
+                        file_path = os.path.join(results_path, "html", filename + ".html")
                         with open(file_path, "w", encoding="utf-8") as f:
                             f.write(result.cleaned_html)  # Write cleaned html content to the file
+                    if result.screenshot:
+                        file_path = os.path.join(results_path, filename + ".png")
+                        with open(file_path, "wb") as f:
+                            f.write(b64decode(result.screenshot)) # Save created screenshot of website
+                    if result.pdf:
+                        file_path = os.path.join(results_path, filename + ".pdf")
+                        with open(file_path, "wb") as f:
+                            f.write(result.pdf) # Save created pdf of website
                 except Exception as e:
                     # Write error to error.txt
                     error_file = os.path.join("./results", "error.txt")
@@ -219,64 +240,30 @@ def sanitize_filename(url: str, is_image: bool = False) -> str:
         str: A sanitized filename based on the URL.
     """
     # Remove scheme and replace slashes with underscores
-    filename = re.sub(r"https?://", "", url).replace("/", "_")
+    filename = re.sub(r"https?://", "", url).replace("/", "_").replace("?", "_")
 
     # Replace other invalid characters for filenames
     filename = re.sub(r'[<>:"/\\|?*]', "_", filename)
 
     if len(filename) <= MAX_FILENAME_LENGTH:
-        if is_image:
-            # Extract extension from URL if available
-            parsed_url = urlparse(url)
-            ext = os.path.splitext(parsed_url.path)[1]
-            if ext:
-                return f"{filename}{ext}"
-            else:
-                return f"{filename}.jpg"  # Default to jpg if no extension found
+        # Extract extension from URL if available
+        parsed_url = urlparse(url)
+        ext = os.path.splitext(parsed_url.path)[1]
+        if ext:
+            return f"{filename}{ext}"
         else:
-            return f"{filename}.md"
-
-    # Try to decode the URL components
-    from urllib.parse import unquote
-
-    try:
-        # Decode the URL to handle percent-encoded characters
-        decoded_url = unquote(url)
-        # Extract filename by removing protocol and replacing separators
-        decoded_filename = (
-            re.sub(r"https?://", "", decoded_url).replace("/", "_").replace("?", "_")
-        )
-
-        # Replace invalid characters for filenames on Windows systems
-        decoded_filename = re.sub(r'[<>:"/\\|?*]', "_", decoded_filename)
-
-        # Check if the filename is within the allowed length
-        if len(decoded_filename) <= MAX_FILENAME_LENGTH:
-            if is_image:
-                # Extract extension from URL if available
-                parsed_url = urlparse(url)
-                ext = os.path.splitext(parsed_url.path)[1]
-                if ext:
-                    return f"{decoded_filename}{ext}"
-                else:
-                    return f"{decoded_filename}.jpg"  # Default to jpg if no extension found
-            else:
-                return f"{decoded_filename}.md"
-    except Exception as e:
-        print(f"Failed to decode URL: {e}")
-
-    # If filename is still too long, truncate it
-    truncated_filename = f"{filename[: MAX_FILENAME_LENGTH - 10]}_truncated"
-    if is_image:
+            return f"{filename}"
+    else:
+        # If filename is still too long, truncate it
+        truncated_filename = f"{filename[: MAX_FILENAME_LENGTH - 10]}_truncated"
+        
         # Extract extension from URL if available
         parsed_url = urlparse(url)
         ext = os.path.splitext(parsed_url.path)[1]
         if ext:
             return f"{truncated_filename}{ext}"
         else:
-            return f"{truncated_filename}.jpg"  # Default to jpg if no extension found
-    else:
-        return f"{truncated_filename}.md"
+            return f"{truncated_filename}"
 
 
 def sanitize_directory_name(url: str) -> str:
@@ -317,6 +304,16 @@ if __name__ == "__main__":
         action="store_true",
         help="Accept and download files during the crawl (default: False)",
     )
+    parser.add_argument(
+        "--save_pdf",
+        action="store_true",
+        help="Save pages as PDF (default: False)",
+    )
+    parser.add_argument(
+        "--save_screenshot",
+        action="store_true",
+        help="Take screenshots of pages (default: False)",
+    )
 
     args = parser.parse_args()
     urls_media = asyncio.run(
@@ -325,6 +322,8 @@ if __name__ == "__main__":
             deepcrawl=args.deepcrawl,
             depth=args.depth,
             accept_downloads=args.accept_downloads,
+            save_pdf=args.save_pdf,
+            save_screenshot=args.save_screenshot,
         )
     )
     # print(f"Crawled {len(urls_media['urls'])} URLs")  # Print the number of crawled URLs
