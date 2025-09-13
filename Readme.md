@@ -1,6 +1,7 @@
 # Web Crawler
 
-This is a web crawler tool built using Devstral and the Crawl4AI library. It allows you to crawl websites, extract URLs, and optionally download media content.
+This is a web crawler tool built using various local LLMs and the Crawl4AI library.
+It allows you to crawl websites, extract URLs, and optionally download media content.
 
 ## Features
 
@@ -39,6 +40,7 @@ This is used as a filter list, so that the specified domains will not be crawled
 ## Parameters
 * url: The URL to start crawling from (required)
 * --deepcrawl: Perform a deep crawl following all links (optional|boolean)
+* --depth: Sets the depths of the deepcrawling process (default: 3)
 * --accept-downloads: Download found images and files during the crawl (optional|boolean)
 
 ## Results
