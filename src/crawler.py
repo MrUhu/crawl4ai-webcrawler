@@ -34,9 +34,6 @@ async def start_crawler(
     html_path = os.path.join(results_path, "html")
     md_path = os.path.join(results_path, "md")
 
-    if save_pdf:
-        print("Save PDF is activated!")
-
     # Set up the results directory if it doesn't exist
     if not os.path.exists(results_path):
         os.makedirs(results_path)
@@ -160,6 +157,7 @@ async def start_crawler(
                     save_path = os.path.join(images_dir, filename)
 
                     if not os.path.exists(save_path):
+                        # TODO: img["src"] is only a truncated url that needs to be concatenated with the base url
                         success = download_image(img["src"], save_path)
                         if success:
                             print(f"Downloaded image {i} to {save_path}")
@@ -167,9 +165,8 @@ async def start_crawler(
                             print(f"Failed to download image {i}")
                     else:
                         print(f"Image {i} already exists at {save_path}")
-
-        else:
-            print(f"Failed to crawl {result.url}")
+            else:
+                print(f"Failed to crawl {result.url}")
 
         return {
             "urls": result.urls

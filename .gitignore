@@ -116,3 +116,6 @@ ipython_config.py
 #  The Pipfile can be used instead of the requirements.txt file for specifying
 #  package dependencies.
 Pipfile.*
+
+# Ruff cache
+.ruff_cache
